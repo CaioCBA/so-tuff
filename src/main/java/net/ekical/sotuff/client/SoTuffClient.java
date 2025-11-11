@@ -46,7 +46,10 @@ public final class SoTuffClient implements ClientModInitializer {
         AttackEntityCallback.EVENT.register((player, world, hand, entity, hit) -> {
             if (world.isClient && player == MinecraftClient.getInstance().player
                     && SoTuffConfig.get().triggerAfterEachAction) {
-                enqueueManualTrigger(DEFAULT_FREEZE_DURATION_MS, 75);
+                // Verifica a chance de trigger
+                if (Math.random() <= SoTuffConfig.get().actionTriggerChance) {
+                    enqueueManualTrigger(DEFAULT_FREEZE_DURATION_MS, 75);
+                }
             }
             return ActionResult.PASS;
         });

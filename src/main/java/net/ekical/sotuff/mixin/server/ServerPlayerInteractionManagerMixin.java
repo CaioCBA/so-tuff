@@ -31,6 +31,9 @@ public abstract class ServerPlayerInteractionManagerMixin {
                                            BlockHitResult hit,
                                            CallbackInfoReturnable<ActionResult> cir) {
         if (!SoTuffRuntime.triggerAfterEachAction()) return;
+        
+        // Verifica a chance de trigger
+        if (Math.random() > SoTuffRuntime.actionTriggerChance()) return;
 
         ActionResult result = cir.getReturnValue();
         if (!result.isAccepted()) return;
@@ -52,6 +55,9 @@ public abstract class ServerPlayerInteractionManagerMixin {
                                           Hand hand,
                                           CallbackInfoReturnable<ActionResult> cir) {
         if (!SoTuffRuntime.triggerAfterEachAction()) return;
+        
+        // Verifica a chance de trigger
+        if (Math.random() > SoTuffRuntime.actionTriggerChance()) return;
         
         ActionResult result = cir.getReturnValue();
         if (!result.isAccepted()) return;

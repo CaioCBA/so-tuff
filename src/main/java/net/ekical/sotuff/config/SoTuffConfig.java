@@ -17,6 +17,7 @@ public final class SoTuffConfig {
     private static volatile File configFile;
 
     public boolean triggerAfterEachAction = true;
+    public double  actionTriggerChance = 1.0; // 0.0 = nunca, 1.0 = sempre
 
     public double  frequency01 = 0.5;
     public boolean useCustomWindow = false;

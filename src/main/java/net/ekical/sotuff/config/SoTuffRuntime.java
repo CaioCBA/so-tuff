@@ -7,6 +7,7 @@ public final class SoTuffRuntime {
 
     private static boolean hasServerSet = false;
     private static boolean triggerAfterEachAction = false;
+    private static double  actionTriggerChance = 1.0;
     private static double  frequency01 = 0.5;     // 0..1
     private static boolean varySoundSpeed = true;
     private static boolean cinematicBars = true;
@@ -16,6 +17,7 @@ public final class SoTuffRuntime {
     private static float pitchDefault = 1.0f;
 
     public static boolean triggerAfterEachAction() { return hasServerSet ? triggerAfterEachAction : SoTuffConfig.get().triggerAfterEachAction; }
+    public static double  actionTriggerChance()    { return hasServerSet ? actionTriggerChance    : SoTuffConfig.get().actionTriggerChance; }
     public static double  frequency01()            { return hasServerSet ? frequency01            : SoTuffConfig.get().frequency01; }
     public static boolean varySoundSpeed()         { return hasServerSet ? varySoundSpeed         : SoTuffConfig.get().varySoundSpeed; }
     public static boolean cinematicBars()          { return hasServerSet ? cinematicBars          : SoTuffConfig.get().cinematicBars; }
@@ -24,10 +26,11 @@ public final class SoTuffRuntime {
     public static float pitchMax()                 { return hasServerSet ? pitchMax     : SoTuffConfig.get().soundPitchMax; }
     public static float pitchDefault()             { return hasServerSet ? pitchDefault : SoTuffConfig.get().soundPitchDefault; }
 
-    public static void applyFromServer(boolean perAction, double freq01, boolean vary, boolean bars,
+    public static void applyFromServer(boolean perAction, double actionChance, double freq01, boolean vary, boolean bars,
                                        float pMin, float pMax, float pDef) {
         hasServerSet = true;
         triggerAfterEachAction = perAction;
+        actionTriggerChance = MathUtils.clamp01(actionChance);
         frequency01 = MathUtils.clamp01(freq01);
         varySoundSpeed = vary;
         cinematicBars = bars;

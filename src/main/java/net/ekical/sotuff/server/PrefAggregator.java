@@ -10,7 +10,7 @@ import java.util.*;
 public final class PrefAggregator {
     private static final class Pref {
         boolean perAction, vary, bars;
-        double freq01;
+        double actionChance, freq01;
         float pitchMin, pitchMax, pitchDefault;
     }
 
@@ -18,10 +18,11 @@ public final class PrefAggregator {
 
     private PrefAggregator(){}
 
-    public static void setControllerPrefs(boolean perAction, double freq01, boolean vary, boolean bars,
+    public static void setControllerPrefs(boolean perAction, double actionChance, double freq01, boolean vary, boolean bars,
                                           float pitchMin, float pitchMax, float pitchDefault) {
         Pref pr = new Pref();
         pr.perAction = perAction;
+        pr.actionChance = MathUtils.clamp01(actionChance);
         pr.freq01 = MathUtils.clamp01(freq01);
         pr.vary = vary;
         pr.bars = bars;
@@ -33,10 +34,11 @@ public final class PrefAggregator {
 
     public static EffectivePrefsS2CPayload computeEffective() {
         if (controller == null) {
-            return new EffectivePrefsS2CPayload(false, 0.5, true, true, 1.0f, 1.0f, 1.0f);
+            return new EffectivePrefsS2CPayload(false, 1.0, 0.5, true, true, 1.0f, 1.0f, 1.0f);
         }
         return new EffectivePrefsS2CPayload(
                 controller.perAction,
+                controller.actionChance,
                 controller.freq01,
                 controller.vary,
                 controller.bars,

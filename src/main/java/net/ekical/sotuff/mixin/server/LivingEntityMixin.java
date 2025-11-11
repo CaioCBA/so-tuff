@@ -36,6 +36,10 @@ public class LivingEntityMixin {
     private void soTuff$afterDamage(ServerWorld world, DamageSource source, float amount,
                                     CallbackInfoReturnable<Boolean> cir) {
         if (!net.ekical.sotuff.config.SoTuffRuntime.triggerAfterEachAction()) return;
+        
+        // Verifica a chance de trigger
+        if (Math.random() > net.ekical.sotuff.config.SoTuffRuntime.actionTriggerChance()) return;
+        
         if (!cir.getReturnValue()) return;
         
         LivingEntity entity = (LivingEntity)(Object)this;

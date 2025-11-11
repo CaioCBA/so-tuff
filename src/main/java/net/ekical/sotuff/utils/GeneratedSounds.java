@@ -19,14 +19,14 @@ public final class GeneratedSounds {
 
     private static final List<Identifier> DEFAULT_KEYS = List.of(
             Identifier.of(MOD_ID, "phonk/ef1"),
-            Identifier.of(MOD_ID, "phonk/ef2"),
-            Identifier.of(MOD_ID, "phonk/ef3"),
-            Identifier.of(MOD_ID, "phonk/ef4"),
-            Identifier.of(MOD_ID, "phonk/ef5"),
-            Identifier.of(MOD_ID, "phonk/ef6"),
-            Identifier.of(MOD_ID, "phonk/ef7"),
-            Identifier.of(MOD_ID, "phonk/ef8"),
-            Identifier.of(MOD_ID, "phonk/ef9")
+            Identifier.of(MOD_ID, "phonk/ef2")
+            // Identifier.of(MOD_ID, "phonk/ef3"),
+            // Identifier.of(MOD_ID, "phonk/ef4"),
+            // Identifier.of(MOD_ID, "phonk/ef5"),
+            // Identifier.of(MOD_ID, "phonk/ef6"),
+            // Identifier.of(MOD_ID, "phonk/ef7"),
+            // Identifier.of(MOD_ID, "phonk/ef8"),
+            // Identifier.of(MOD_ID, "phonk/ef9")
     );
 
     private static final Set<Identifier> DISCOVERED = new LinkedHashSet<>();

@@ -73,10 +73,24 @@ public final class NetworkHandler {
         ServerPlayNetworking.registerGlobalReceiver(ClientPrefsC2SPayload.ID, (payload, ctx) -> {
             ctx.player().getServer().execute(() -> {
                 ServerPlayerEntity p = ctx.player();
-                // Only ops can configure the pitch
-                if (p.hasPermissionLevel(2) || !p.getServer().isDedicated()) {
+                // Check if player has permission to change settings
+                // In dedicated servers: requires OP level 2+
+                // In LAN/Singleplayer: only the world owner (integrated server owner)
+                boolean canModify = false;
+                
+                if (p.getServer().isDedicated()) {
+                    // Dedicated server: requires OP level 2+
+                    canModify = p.hasPermissionLevel(2);
+                } else {
+                    // LAN/Singleplayer: only the integrated server owner
+                    var integratedServer = p.getServer();
+                    canModify = integratedServer.isSingleplayer() || 
+                               (integratedServer.isHost(p.getGameProfile()));
+                }
+                
+                if (canModify) {
                     net.ekical.sotuff.server.PrefAggregator.setControllerPrefs(
-                            payload.perAction(), payload.freq01(), payload.vary(), payload.bars(),
+                            payload.perAction(), payload.actionChance(), payload.freq01(), payload.vary(), payload.bars(),
                             clampPitch(payload.pitchMin()), clampPitch(payload.pitchMax()), clampPitch(payload.pitchDefault())
                     );
                     var players = p.getServerWorld().getPlayers();
@@ -90,6 +104,9 @@ public final class NetworkHandler {
                             ServerPlayNetworking.send(sp2, upd);
                         }
                     }
+                } else {
+                    // Non-authorized players: send back the current server settings to override their client attempt
+                    net.ekical.sotuff.server.PrefAggregator.broadcastToAll(List.of(p));
                 }
             });
         });
@@ -104,7 +121,7 @@ public final class NetworkHandler {
     public static void registerClientReceivers() {
         ClientPlayNetworking.registerGlobalReceiver(EffectivePrefsS2CPayload.ID, (payload, ctx) ->
                 ctx.client().execute(() -> net.ekical.sotuff.config.SoTuffRuntime.applyFromServer(
-                            payload.perAction(), payload.freq01(), payload.vary(), payload.bars(),
+                            payload.perAction(), payload.actionChance(), payload.freq01(), payload.vary(), payload.bars(),
                             payload.pitchMin(), payload.pitchMax(), payload.pitchDefault()
                 ))
         );
@@ -133,6 +150,10 @@ public final class NetworkHandler {
     public static void registerServerEventTriggers() {
         PlayerBlockBreakEvents.AFTER.register((World world, PlayerEntity player, BlockPos pos, BlockState state, BlockEntity be) -> {
             if (!net.ekical.sotuff.config.SoTuffRuntime.triggerAfterEachAction()) return;
+            
+            // Verifica a chance de trigger
+            if (Math.random() > net.ekical.sotuff.config.SoTuffRuntime.actionTriggerChance()) return;
+            
             if (player instanceof ServerPlayerEntity sp) startFreezeFor(sp, DEFAULT_FREEZE_DURATION_MS);
         });
 
@@ -149,6 +170,9 @@ public final class NetworkHandler {
         ServerEntityCombatEvents.AFTER_KILLED_OTHER_ENTITY.register(
                 (ServerWorld world, net.minecraft.entity.Entity killer, net.minecraft.entity.LivingEntity victim) -> {
                     if (!net.ekical.sotuff.config.SoTuffRuntime.triggerAfterEachAction()) return;
+                    
+                    // Verifica a chance de trigger
+                    if (Math.random() > net.ekical.sotuff.config.SoTuffRuntime.actionTriggerChance()) return;
                     
                     long now = System.currentTimeMillis();
                     UUID victimUUID = victim.getUuid();
@@ -200,7 +224,7 @@ public final class NetworkHandler {
         
         var c = net.ekical.sotuff.config.SoTuffConfig.get();
         ClientPlayNetworking.send(new ClientPrefsC2SPayload(
-                c.triggerAfterEachAction, c.frequency01, c.varySoundSpeed, c.cinematicBars,
+                c.triggerAfterEachAction, c.actionTriggerChance, c.frequency01, c.varySoundSpeed, c.cinematicBars,
                 c.soundPitchMin, c.soundPitchMax, c.soundPitchDefault
         ));
     }
@@ -223,14 +247,14 @@ public final class NetworkHandler {
     
     private static final List<String> DEFAULT_SOUNDS = Collections.unmodifiableList(List.of(
             "so-tuff:phonk/ef1",
-            "so-tuff:phonk/ef2",
-            "so-tuff:phonk/ef3",
-            "so-tuff:phonk/ef4",
-            "so-tuff:phonk/ef5",
-            "so-tuff:phonk/ef6",
-            "so-tuff:phonk/ef7",
-            "so-tuff:phonk/ef8",
-            "so-tuff:phonk/ef9"
+            "so-tuff:phonk/ef2"
+            // "so-tuff:phonk/ef3",
+            // "so-tuff:phonk/ef4",
+            // "so-tuff:phonk/ef5",
+            // "so-tuff:phonk/ef6",
+            // "so-tuff:phonk/ef7",
+            // "so-tuff:phonk/ef8",
+            // "so-tuff:phonk/ef9"
     ));
     
     private static String pickRandomSound() {

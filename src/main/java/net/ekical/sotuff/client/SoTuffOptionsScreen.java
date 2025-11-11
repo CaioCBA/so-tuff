@@ -19,6 +19,7 @@ public final class SoTuffOptionsScreen extends Screen {
     private final Screen parent;
 
     private ButtonWidget afterEachActionBtn;
+    private ActionChanceSlider actionChanceSlider;
     private ButtonWidget useCustomBtn;
 
     private FrequencySlider  freqSlider;
@@ -85,6 +86,18 @@ public final class SoTuffOptionsScreen extends Screen {
                 "Play the effect after every action you do.\nIf you beat the game with this enabled, I respect the grind."
         )));
         addScrollable(afterEachActionBtn, y);
+
+        y += ROW_H + GAP;
+
+        actionChanceSlider = new ActionChanceSlider(x, y, 200, ROW_H, cfg.actionTriggerChance, val -> {
+            cfg.actionTriggerChance = val;
+            SoTuffConfig.save();
+            NetworkHandler.sendClientPrefsFromConfig();
+        });
+        actionChanceSlider.setTooltip(Tooltip.of(Text.literal(
+                "Chance of trigger per action (0% = never, 100% = always)"
+        )));
+        addScrollable(actionChanceSlider, y);
 
         y += ROW_H + GAP + 4;
 
@@ -261,6 +274,7 @@ public final class SoTuffOptionsScreen extends Screen {
         boolean serverControlled = isServerControlled();
 
         if (useCustomBtn != null) useCustomBtn.active = !perAction;
+        if (actionChanceSlider != null) actionChanceSlider.active = perAction;
 
         boolean enableFreq   = !perAction && !custom;
         boolean enableCustom = !perAction &&  custom;
@@ -522,6 +536,24 @@ public final class SoTuffOptionsScreen extends Screen {
         @Override protected void updateMessage() {
             int pct = (int)Math.round(this.value * 100.0);
             setMessage(Text.literal("Frequency: " + pct + "%"));
+        }
+
+        @Override protected void applyValue() { onChange.accept(this.value); }
+        double getValue() { return this.value; }
+    }
+
+    private static final class ActionChanceSlider extends SliderWidget {
+        private final java.util.function.DoubleConsumer onChange;
+
+        ActionChanceSlider(int x, int y, int w, int h, double initial01, java.util.function.DoubleConsumer onChange) {
+            super(x, y, w, h, Text.empty(), MathUtils.clamp01(initial01));
+            this.onChange = onChange;
+            updateMessage();
+        }
+
+        @Override protected void updateMessage() {
+            int pct = (int)Math.round(this.value * 100.0);
+            setMessage(Text.literal("Action Trigger Chance: " + pct + "%"));
         }
 
         @Override protected void applyValue() { onChange.accept(this.value); }
