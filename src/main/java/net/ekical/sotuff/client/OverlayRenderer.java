@@ -135,7 +135,7 @@ public final class OverlayRenderer {
         try {
             Map<Identifier, Resource> imgs = MC.getResourceManager().findResources(
                     "textures/skulls",
-                    id -> "so-tuff".equals(id.getNamespace()) && id.getPath().endsWith(".png")
+                    id -> "so-tuff".equals(id.getNamespace()) && id.getPath().endsWith(".png") || id.getPath().endsWith(".jpg") || id.getPath().endsWith(".jpeg")
             );
             var ids = new ArrayList<>(imgs.keySet());
             ids.sort(Comparator.comparing(Identifier::toString));

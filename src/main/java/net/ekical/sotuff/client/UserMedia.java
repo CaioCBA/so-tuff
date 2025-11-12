@@ -139,7 +139,7 @@ public final class UserMedia {
                 String fileName = imgPath.getFileName().toString();
                 int dotIndex = fileName.lastIndexOf('.');
                 String base = dotIndex > 0 ? fileName.substring(0, dotIndex) : fileName;
-                Path out = skullsDir.resolve(base + ".png");
+                Path out = skullsDir.resolve(base + ".png") || skullsDir.resolve(base + ".jpg") || skullsDir.resolve(base + ".jpeg");
                 resized.writeTo(out);
                 resized.close();
                 img.close();
